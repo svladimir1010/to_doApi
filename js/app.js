@@ -126,4 +126,14 @@ const todoForm = document.getElementById("todo-form"),
 	todoList = document.getElementById("todo-list"),
 	todoItems = document.querySelectorAll(".todo-item");
 //привяжем обработч события на событие отпр формы
-todoForm.addEventListener("submit", addTodoItem);
+// todoForm.addEventListener("submit", addTodoItem);
+
+//создаем функцию INIT - запуск
+(function main() {
+	todoForm.addEventListener('submit', addTodoItem);
+	// уже существующему списку присваиваем все созданные методы и события
+	todoItems.forEach(item => bindEvents(item));
+	console.log("todoItems", todoItems);
+})();
+
+//main();
