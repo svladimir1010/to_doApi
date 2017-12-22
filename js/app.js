@@ -1,3 +1,9 @@
+
+// инкапсуляция с помощью паттерна 'ifi' или паттерн 
+// модуля - созд самовыз анонимной функции функ обертки
+// параметром передаем документ
+console.log(document);
+const main = (document => {
 // создадим функцию конструктор элементов
 function createElement(tag, props, ...children) {
 	const element = document.createElement(tag);
@@ -164,5 +170,11 @@ todoItems = document.querySelectorAll(".todo-item");
 	todoItems.forEach(item => bindEvents(item));
 	console.log("todoItems", todoItems);
 })();
-
 //main();
+
+// для того что бы функ была паттерн модулей 
+// из нее что то возвращается у нас это 'main'
+return main;
+})(document);
+
+main();
