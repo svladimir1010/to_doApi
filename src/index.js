@@ -176,5 +176,5 @@ todoItems = document.querySelectorAll(".todo-item");
 // из нее что то возвращается у нас это 'main'
 return main;
 })(document);
-
+// появляется возможность отправки функции в другое место приложения
 main();
