@@ -4,22 +4,34 @@ export default class Model {
 	constructor(state = []) {
 		// помещаем первонач сост в свойство класса
 		this.state = state;
+
+		/*модель вид обьект задача
+		{
+			id: 123456789023456789,       состояние будет массив из таких обьектов
+			title: '',
+			completed: false
+		}*/
+
 	}
+
 	// метод получения данных (одного тодо) из состояния по 'id'
 	getItem(id) {
 		return this.state.find(item => item.id == id);
 	}
+
 	// метод добавления данных состояния
 	addItem(item) {
 		this.state.push(item);
 	}
-	// метод для изменения данных состояния по 'id' обьекта и 
+
+	// метод для изменения данных состояния по 'id' обьекта и
 	// данным на которые он обновляется
 	updateItem(id, data) {
-		const item = this.getItem(id);  // находим обьект состояния
+		const item = this.getItem(id); // находим обьект состояния
 		//перебир свойства обьекта дата и у обьекта item появятся все свойст обьекта data
-		Object.keys(data).forEach(prop => item[prop] = data[prop]);
+		Object.keys(data).forEach(prop => (item[prop] = data[prop]));
 	}
+
 	//удаление метода из масива
 	removeItem(id) {
 		//находим индекс
@@ -31,3 +43,6 @@ export default class Model {
 	}
 }
 
+//мы получили МОДЕЛЬ с четырьмя методами для - получения элемента,
+//добавления элемента, обновления и удаления.
+//модель ничего не знает о своем окружении
