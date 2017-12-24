@@ -22,6 +22,8 @@ export default class Model {
 	// метод добавления данных состояния
 	addItem(item) {
 		this.state.push(item);
+
+		return item;
 	}
 
 	// метод для изменения данных состояния по 'id' обьекта и
@@ -30,6 +32,8 @@ export default class Model {
 		const item = this.getItem(id); // находим обьект состояния
 		//перебир свойства обьекта дата и у обьекта item появятся все свойст обьекта data
 		Object.keys(data).forEach(prop => (item[prop] = data[prop]));
+
+		return item;
 	}
 
 	//удаление метода из масива

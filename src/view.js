@@ -1,12 +1,14 @@
-import { createElement } from "./help.js"; //импорт функ createElement
+import { createElement, EventEmitter } from "./help.js"; //импорт функ createElement
 // можем создать и с помощью обьекта
 // const view = {}
 
 //обьект представления отвечает за внешний вид
 // манипуляции с HTML и ничего не знает о модели
 //  только о том как работать с DOM элементами
-export default class View {
+export default class View extends EventEmitter {
 	constructor() {
+		// что бы наследовать от другого класса вызыв метод супер
+		super();
 		// получаем данные для класса
 		this.form = document.getElementById("todo-form"); //получаем форму
 		this.input = document.getElementById("add-input"); //получаем инпут
@@ -71,15 +73,15 @@ export default class View {
 		return item;
 	}
 
-	handleAdd(event) {
-		event.preventDefault();
+	handleAdd(event) {   //метод срабатывающий при вводе
+		event.preventDefault();   //остановка отправки данных на сервер
 		//в случае пустого поля
-		if (!this.input.value)
-			return alert("Необходимо ввести название задачи");
+		if (!this.input.value) return alert("Необходимо ввести название задачи");
 
-		const value = this.input.value;
+		const value = this.input.value; //получаем введенные данные
 
 		// add item to model
+		this.emit('add', value);
 	}
 
 	handleToggle({ target }) {
@@ -88,6 +90,7 @@ export default class View {
 		const completed = target.completed;
 
 		//update model
+		this.emit('toggle', { id, completed })	
 	}
 
 	// метод просходящий при нажати на кнопку изменить в задаче
@@ -102,6 +105,7 @@ export default class View {
 
 		if (isEditing) {
 			// update model
+			this.emit('edit', { id, title });
 		} else {
 			input.value = label.textContent;
 			editButton.textContent = "Сохранить";
@@ -111,8 +115,10 @@ export default class View {
 	//  метод удаления элемента из модели
 	handleRemove({ target }) {
 		const listItem = target.parentNode;
+		const id = listItem.getAttribute('data-id');
 
 		//remove item from model
+		this.emit('remove', id)
 	}
 
 	//метод для добавл нового элемен в список
