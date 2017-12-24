@@ -1,24 +1,20 @@
-import { createElement, EventEmitter } from "./help.js"; //импорт функ createElement
-// можем создать и с помощью обьекта
-// const view = {}
+import { createElement, EventEmitter } from "./help.js"; 
 
-//обьект представления отвечает за внешний вид
-// манипуляции с HTML и ничего не знает о модели
-//  только о том как работать с DOM элементами
+
 export default class View extends EventEmitter {
 	constructor() {
-		// что бы наследовать от другого класса вызыв метод супер
+		
 		super();
-		// получаем данные для класса
-		this.form = document.getElementById("todo-form"); //получаем форму
-		this.input = document.getElementById("add-input"); //получаем инпут
-		this.list = document.getElementById("todo-list"); //получаем список
+		
+		this.form = document.getElementById("todo-form");
+		this.input = document.getElementById("add-input"); 
+		this.list = document.getElementById("todo-list"); 
 
 		this.form.addEventListener("submit", this.handleAdd.bind(this));
 	}
-	// метод который будет создавать элемент
-	createElement(todo) {
-		//создаем элемент checkbox
+	
+	createListItem(todo) {
+		
 		const checkbox = createElement("input", {
 			type: "checkbox",
 			className: "checkbox",
@@ -54,18 +50,17 @@ export default class View extends EventEmitter {
 			label,
 			editInput,
 			editButton,
-			removeButton
+			deleteButton
 		);
 		return this.addEventListeners(item);
 	}
-	//теперь навешиваем обработчик на внутренние элементы элемента li
-	//метод получает элемент li и возвращает его же
+	
 	addEventListeners(item) {
-		const checkbox = listItem.querySelector(".checkbox"); // событие на check
-		const editButton = listItem.querySelector("button.edit"); //на кнопку изменить
-		const removeButton = listItem.querySelector("button.remove"); //на кнопку удалить
+		const checkbox = item.querySelector(".checkbox"); 
+		const editButton = item.querySelector("button.edit"); 
+		const removeButton = item.querySelector("button.remove"); 
 
-		//вешаем обработчик событие
+		
 		checkbox.addEventListener("change", this.handleToggle.bind(this));
 		editButton.addEventListener("click", this.handleEdit.bind(this));
 		removeButton.addEventListener("click", this.handleRemove.bind(this));
@@ -73,38 +68,37 @@ export default class View extends EventEmitter {
 		return item;
 	}
 
-	handleAdd(event) {   //метод срабатывающий при вводе
-		event.preventDefault();   //остановка отправки данных на сервер
-		//в случае пустого поля
+	handleAdd(event) {   
+		event.preventDefault();   
+		
 		if (!this.input.value) return alert("Необходимо ввести название задачи");
 
-		const value = this.input.value; //получаем введенные данные
-
-		// add item to model
+		const value = this.input.value;
+		
 		this.emit('add', value);
 	}
 
 	handleToggle({ target }) {
 		const listItem = target.parentNode;
 		const id = listItem.getAttribute("data-id");
-		const completed = target.completed;
+		const completed = target.checked;
 
-		//update model
+		
 		this.emit('toggle', { id, completed })	
 	}
 
-	// метод просходящий при нажати на кнопку изменить в задаче
+	
 	handleEdit({ target }) {
 		const listItem = target.parentNode;
 		const id = listItem.getAttribute("data-id");
 		const label = listItem.querySelector(".title");
 		const input = listItem.querySelector(".textfield");
 		const editButton = listItem.querySelector("button.edit");
-		const title = input.value; //то что введено
+		const title = input.value; 
 		const isEditing = listItem.classList.contains("editing");
 
 		if (isEditing) {
-			// update model
+			
 			this.emit('edit', { id, title });
 		} else {
 			input.value = label.textContent;
@@ -112,39 +106,42 @@ export default class View extends EventEmitter {
 			listItem.classList.add("editing");
 		}
 	}
-	//  метод удаления элемента из модели
+	
 	handleRemove({ target }) {
 		const listItem = target.parentNode;
-		const id = listItem.getAttribute('data-id');
 
-		//remove item from model
-		this.emit('remove', id)
+		this.emit('remove', listItem.getAttribute('data-id'));
 	}
 
-	//метод для добавл нового элемен в список
+	show(todos) {
+		todos.forEach(todo => {
+			const listItem = this.createListItem(todo);
+
+			this.list.appendChild(listItem)
+		});
+	}
+
+	
 	addItem(todo) {
-		//список принима нов тодо обьект задачу
-		const listItem = this.createElement(todo); //созд нов li и отправл ему обьект задачу
-
-		this.input.value = ""; //очищаем инпут
-		this.list.appendChild(listItem); // добавляем li в список ul
+		
+		const listItem = this.createElement(todo);
+		this.input.value = "";
+		this.list.appendChild(listItem); 
 	}
 
-	//дополнительный метод для поиска li по его id
+	
 	findListItem(id) {
-		//ПРОСИМ  ul найти усебя элемент с атрибутом data-id
+		
 		return this.list.querySelector(`[data-id = "${id}"]`);
 	}
-	// в методе TOGGL мы переключаем задачу с выполненой на невыполн - отмеч checkbox
+	
 	toggleItem(todo) {
-		//получаем li котор уже есть в dom с помощью
-		// findlistItem , и передаем туда todo.id
+		
 		const listItem = this.findListItem(todo.id);
 		const checkbox = listItem.querySelector(".checkbox");
-		//меняем свойство checkbox на то котороя в задаче
+		
 		checkbox.checked = todo.completed;
 
-		// todo.completed ? listItem.classList.add('completed') : listItem.classList.remove('completed');
 		if (todo.completed) {
 			listItem.classList.add("completed");
 		} else {
@@ -152,25 +149,22 @@ export default class View extends EventEmitter {
 		}
 	}
 
-	// метод для изменения заголовка задачи, он приним обьект задачи
-	// этот метод сработает после того как задача обновится в хранилище
-	// и методу будут перед задача с обновленным значением
+	
 	editItem(todo) {
 		const listItem = this.findListItem(todo.id);
-		const label = listItem.querySelector(".title"); // получаем лэйбел
-		const input = listItem.querySelector(".textfield"); // пол инпут
-		const editButton = listItem.querySelector(button.edit); // пол кнопку
+		const label = listItem.querySelector(".title"); 
+		const input = listItem.querySelector(".textfield");
+		const editButton = listItem.querySelector('button.edit'); 
 
-		//теперь зная что обьект задачи изменен необходимо обновить лэйбл
-		//вместо свойства innerText лучше использ textContent(стандартизировано)
+		
 		label.textContent = todo.title;
-		editButton.textContent = "Изменить"; //меняем текст кнопки
-		listItem.classList.remove("editing"); // удаляем класс у listItem
+		editButton.textContent = "Изменить";
+		listItem.classList.remove("editing"); 
 	}
 
-	//метод для удаления элемента из списка
+	
 	removeItem(id) {
-		const listItem = this.findListItem(todo.id);
+		const listItem = this.findListItem(id);
 
 		this.list.removeChild(listItem);
 	}
